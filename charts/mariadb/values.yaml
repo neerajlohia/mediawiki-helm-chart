@@ -15,9 +15,6 @@ deployment:
     db:
       claimName: "pvc-mariadb-db"
   env:
-#    root_password: "root"
-#    username: "user"
-#    password: "pass"
     database: "my-database"
 
 secret:

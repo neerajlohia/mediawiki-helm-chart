@@ -31,6 +31,10 @@ mariadb:
     root_password: ""
     username: ""
     password: ""
+  pv:
+    nfs:
+      path: "/mnt/nfs_shared/mariadb"
+      server: "10.0.20.4"
 
 service:
   name: "svc-mediawiki"
