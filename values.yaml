@@ -1,0 +1,71 @@
+global:
+  namespace: mediawiki-stack
+
+deployment:
+  name: mediawiki
+  replicaCount: 1
+  containerPort: 80
+  image:
+    name: mediawiki
+    tag: 1.35.2
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+    limits:
+      cpu: "400m"
+      memory: "100Mi"
+  volumeMounts:
+    conf:
+      mountPath: /mnt/mediawiki-conf/
+  volumes:
+    conf:
+      claimName: "pvc-mediawiki-conf"
+
+# override values in MariaDB chart
+mariadb:
+  deployment:
+    env:
+      database: 'mediawiki'
+  secret:
+    root_password: ""
+    username: ""
+    password: ""
+
+service:
+  name: "svc-mediawiki"
+  type: "NodePort"
+  port: 80
+  targetPort: 80
+  nodePort: 30080
+
+pv:
+  name: "pv-mediawiki-conf"
+  storageClassName: "nfs"
+  capacity:
+    storage: 10Mi
+  accessModes: "ReadWriteMany"
+  reclaim: "Retain"
+  mountOptions:
+  - "hard"
+  - "nfsvers=4.1"
+  nfs:
+    path: "/mnt/nfs_shared/mediawiki/conf"
+    server: "10.0.20.4"
+  
+pvc:
+  name: "pvc-mediawiki-conf"
+  storageClassName: "nfs"
+  accessModes: "ReadWriteMany"
+  resource:
+    requests:
+      storage: 10Mi
+
+hpa:
+  name: "hpa-mediawiki"
+  minReplicas: 1
+  maxReplicas: 2
+  targetDeploymentName: "mediawiki"
+  resource:
+    cpu:
+      avgUtilization: 60

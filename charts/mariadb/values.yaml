@@ -1,0 +1,56 @@
+global:
+  namespace: "mariadb"
+
+deployment:
+  name: "mariadb"
+  replicaCount: 1
+  containerPort: 3306
+  image:
+    name: mariadb
+    tag: 10.5.10
+  volumeMounts:
+    db:
+      mountPath: "/var/lib/mysql"
+  volumes:
+    db:
+      claimName: "pvc-mariadb-db"
+  env:
+#    root_password: "root"
+#    username: "user"
+#    password: "pass"
+    database: "my-database"
+
+secret:
+  name: "mariadb"
+  root_password: ""
+  username: ""
+  password: ""
+
+service:
+  name: "svc-mariadb"
+  type: ClusterIP
+  port: 3306
+  targetPort: 3306
+
+pv:
+  name: "pv-mariadb-db"
+  storageClassName: "nfs"
+  capacity:
+    storage: 400Mi
+  accessModes: "ReadWriteMany"
+  reclaim: "Retain"
+  mountOptions:
+  - "hard"
+  - "nfsvers=4.1"
+  nfs:
+    path: "/mnt/nfs_shared/mariadb"
+    server: "10.0.20.4"
+  
+pvc:
+  name: "pvc-mariadb-db"
+  storageClassName: "nfs"
+  accessModes: "ReadWriteMany"
+  resource:
+    requests:
+      storage: 400Mi
+

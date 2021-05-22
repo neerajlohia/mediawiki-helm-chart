@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+
+{{- with .Values.deployment }}
+
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app: mediawiki
+spec:
+  replicas: {{ .replicaCount  }}
+  selector:
+    matchLabels:
+      app: mediawiki-server
+  template:
+    metadata:
+      labels:
+        app: mediawiki-server
+    spec:
+      containers:
+      - name: {{ .image.name }}
+        image: {{ .image.name }}:{{ .image.tag }}
+        command: ["/bin/sh", "-c"]
+        args: ["ln -s /mnt/mediawiki-conf/LocalSettings.php /var/www/html/LocalSettings.php; apache2-foreground"]
+        ports:
+        - containerPort: {{ .containerPort }}
+        resources: 
+          requests:
+            cpu: {{ .resources.requests.cpu }}
+            memory: {{ .resources.requests.memory }}
+          limits:
+            cpu: {{ .resources.limits.cpu }}
+            memory: {{ .resources.limits.memory }}
+        volumeMounts:
+        - mountPath: {{ .volumeMounts.conf.mountPath }}
+          name: mediawiki-conf
+      volumes:
+      - name: mediawiki-conf
+        persistentVolumeClaim:
+          claimName: {{ .volumes.conf.claimName }}
+
+{{- end }}

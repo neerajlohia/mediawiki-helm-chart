@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+
+{{- with .Values.deployment }}
+
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app: mariadb
+spec:
+  replicas: {{ .replicaCount  }}
+  selector:
+    matchLabels:
+      app: mariadb-database
+  template:
+    metadata:
+      labels:
+        app: mariadb-database
+    spec:
+      containers:
+      - name: {{ .image.name }}
+        image: {{ .image.name }}:{{ .image.tag }}
+        ports:
+        - containerPort: {{ .containerPort }}
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          value: "{{ $.Values.secret.root_password }}"
+        - name: MARIADB_DATABASE
+          value: "{{ .env.database }}"
+        - name: MARIADB_USER
+          value: "{{ $.Values.secret.username }}"
+        - name: MARIADB_PASSWORD
+          value: "{{ $.Values.secret.password }}"
+        volumeMounts:
+        - mountPath: {{ .volumeMounts.db.mountPath }}
+          name: mariadb-data
+      volumes:
+      - name: mariadb-data
+        persistentVolumeClaim:
+          claimName: {{ .volumes.db.claimName }}
+
+{{- end }}

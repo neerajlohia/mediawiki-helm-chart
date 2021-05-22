@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+
+{{- with .Values.service }}
+
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  type: {{ .type }}
+  selector:
+    app: mediawiki-server
+  ports:
+  - port: {{ .port }}
+    targetPort: {{ .targetPort }}
+    nodePort: {{ .nodePort }}
+
+{{- end }}

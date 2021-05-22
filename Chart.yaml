@@ -1,0 +1,10 @@
+apiVersion: v2
+name: mediawiki
+description: Mediawiki chart 
+type: application
+version: 0.1.0
+appVersion: 1.0
+#dependencies: 
+#- name: "mariadb"
+#  appVersion: "10.5.10"
+#  repository: "file://../mariadb"
